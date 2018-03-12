@@ -44,3 +44,7 @@ def reorder_samples(cur_frame):
                     for sb in xrange(SBLIMIT):
                         for ss in xrange(SSLIMIT): 
                             ro[gr][ch][sb][ss] = lr[gr][ch][sb][ss]
+            else:
+                for sb in xrange(SBLIMIT):
+                    for ss in xrange(SSLIMIT):
+                        ro[gr][ch][sb][ss] = lr[gr][ch][sb][ss]
