@@ -7,10 +7,11 @@ HEADER_BITRATE_TABLE = {    0b0000: 0,0b0001: 32,0b0010: 40,0b0011: 48,
                             0b1000: 112,0b1001: 128,0b1010: 160,0b1011: 192,
                             0b1100: 224,0b1101: 256,0b1110: 320,0b1111: 0   }
 
-HEADER_SAMPLE_RATE_TABLE = {   0b00: 44100,
-                            0b01: 48000,
-                            0b10: 32000,
-                            0b11: 0 }
+HEADER_SAMPLE_RATE_TABLE = {    0b00: 44100,
+                                0b01: 48000,
+                                0b10: 32000,
+                                0b11: 0 
+                            }
                 
 HEADER_CHANNEL_MODE_TABLE = {    0b00: "stereo",0b01: "joint stereo",
                                 0b10: "dual channel",0b11: "mono" }
@@ -19,7 +20,7 @@ MID_SIDE_STEREO_BIT  = 0b01
 INTENSITY_STEREO_BIT = 0b10
 
 HEADER_EMPHASIS_TABLE = {    0b00: "none",0b01: "50/15ms",
-                            0b10: "reserved",0b11: "CCIT J.17" }
+                             0b10: "reserved",0b11: "CCIT J.17" }
 SSLIMIT  = 18
 SBLIMIT  = 32
 SCALE    = 32768

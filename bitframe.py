@@ -3,7 +3,7 @@ class BitFrame:
 	def __init__(self, frame=[]):
 		self.frame 			= [ ord(_) for _ in frame ]
 		self.position 		= 0
-		self.frame_length 	= len(s)*8
+		self.frame_length 	= len(frame)*8
 
 	def init_with_int_array(self, frame):
 		self.frame 			= frame
@@ -16,7 +16,7 @@ class BitFrame:
 	def seek_rel(self, offset):
 		self.position += offset
 
-	def read_bits(self, n_bits):
+	def read_bits(self, n_bits, debug=False):
 		val = 0
 		bits_read = 0
 		while(bits_read < n_bits):
