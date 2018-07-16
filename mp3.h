@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include "_defines.h"
 
 /* Types used in the frame header */
@@ -110,6 +112,10 @@ static void dmp_scf(t_mpeg1_side_info *si,t_mpeg1_main_data *md,int gr,int ch);
 static void dmp_huff(t_mpeg1_main_data *md,int gr,int ch);
 static void dmp_samples(t_mpeg1_main_data *md,int gr,int ch,int type);
 static int Decode_L3(pdmp3_handle *id);
+static unsigned Get_Inbuf_Free(pdmp3_handle *id);
+int mp3_feed(pdmp3_handle *id,const unsigned char *in,size_t size);
 int mp3_read(pdmp3_handle *id,unsigned char *outmemory,size_t outsize,size_t *done);
+void mp3_delete(pdmp3_handle *id);
 pdmp3_handle* mp3_new(const char *decoder,int *error);
 int mp3_open_feed(pdmp3_handle *id);
+static void Error(const char *s,int e);

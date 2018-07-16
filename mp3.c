@@ -81,6 +81,48 @@ static int Decode_L3(pdmp3_handle *id){
   return(PDMP3_OK);   /* Done */
 }
 
+static unsigned Get_Inbuf_Free(pdmp3_handle *id) {
+  return  (id->iend<id->istart)?(id->istart-id->iend):(INBUF_SIZE-id->iend+id->istart);
+}
+
+/**Description: Feed new data to the MP3 decoder
+* Parameters: Streaming handle,data buffer containging MP3 data, size fo the
+              data buffer.
+* Return value: PDMP3_OK or an error **/
+int mp3_feed(pdmp3_handle *id,const unsigned char *in,size_t size){
+  if(id && in && size) {
+    int free = Get_Inbuf_Free(id);
+    if(size<=free)
+    {
+      int res;
+      if(id->iend<id->istart)
+      {
+         res = id->istart-id->iend;
+         if(size<res) res=size;
+         memcpy(id->in+id->iend,in,res);
+         id->iend += res;
+      }
+      else
+      {
+         res = INBUF_SIZE-id->iend;
+         if(size<res) res=size;
+         if(res) {
+            memcpy(id->in+id->iend,in,res);
+            id->iend += res;
+            size-= res;
+         }
+         if(size) {
+            memcpy(id->in,in+res,size);
+            id->iend = size;
+         }
+      }
+      return(PDMP3_OK);
+    }
+    return(PDMP3_NO_SPACE);
+  }
+  return(PDMP3_ERR);
+}
+
 
 /**Description: Convert MP3 data to PCM data
 * Parameters: Stream handle,a pointer to a buffer for the PCM data,the size of
@@ -147,6 +189,14 @@ pdmp3_handle* mp3_new(const char *decoder,int *error){
   return malloc(sizeof(pdmp3_handle));
 }
 
+/**Description: Free a streaming handle
+* Parameters: Streaming handle
+* Return value: None **/
+void mp3_delete(pdmp3_handle *id){
+  free(id);
+}
+
+
 /**Description: Resets the stream handle.
 * Parameters: Stream handle
 * Return value: PDMP3_OK or PDMP3_ERR **/
@@ -167,6 +217,15 @@ int mp3_open_feed(pdmp3_handle *id){
   return(PDMP3_ERR);
 }
 
+/**Description: TBD
+* Parameters: TBD
+* Return value: TBD **/
+static void Error(const char *s,int e){
+  (void) fwrite(s,1,strlen(s),stderr);
+  exit(e);
+}
+
+
 int main(int ac, char **av){
   static const char *filename,*audio_name = "/dev/dsp";
   static FILE *fp =(FILE *) NULL;
@@ -186,7 +245,7 @@ int main(int ac, char **av){
 
     mp3_open_feed(id);
     while((res = mp3_read(id,out,INBUF_SIZE,&done)) != PDMP3_ERR){
-      audio_write(id,audio_name,filename,out,done);
+      //audio_write(id,audio_name,filename,out,done);
       if(res == PDMP3_OK || res == PDMP3_NEW_FORMAT) {
       }
       else if(res == PDMP3_NEED_MORE){
@@ -195,10 +254,10 @@ int main(int ac, char **av){
         res = fread(in,1,4096,fp);
         if(!res) break;
 
-        res = pdmp3_feed(id,in,res);
+        res = mp3_feed(id,in,res);
       }
     }
     fclose(fp);
   }
-  pdmp3_delete(id);
+  mp3_delete(id);
 }
