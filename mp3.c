@@ -87,7 +87,7 @@ static int Decode_L3(pdmp3_handle *id){
               the PCM buffer in bytes,a pointer to return the number of
               converted bytes.
 * Return value: PDMP3_OK or an error.**/
-int pdmp3_read(pdmp3_handle *id,unsigned char *outmemory,size_t outsize,size_t *done){
+int mp3_read(pdmp3_handle *id,unsigned char *outmemory,size_t outsize,size_t *done){
   if(id && outmemory && outsize && done) {
     *done = 0;
     if(outsize) {
@@ -137,4 +137,68 @@ int pdmp3_read(pdmp3_handle *id,unsigned char *outmemory,size_t outsize,size_t *
     return(PDMP3_NEED_MORE);
   }
   return(PDMP3_ERR);
+}
+
+/**Description: Create a new streaming handle
+* Parameters: None
+* Return value: Stream handle **/
+
+pdmp3_handle* mp3_new(const char *decoder,int *error){
+  return malloc(sizeof(pdmp3_handle));
+}
+
+/**Description: Resets the stream handle.
+* Parameters: Stream handle
+* Return value: PDMP3_OK or PDMP3_ERR **/
+int mp3_open_feed(pdmp3_handle *id){
+  if(id) {
+    id->ostart = 0;
+    id->istart = 0;
+    id->iend = 0;
+    id->processed = 0;
+    id->new_header = 0;
+
+    id->hsynth_init = 1;
+    id->synth_init = 1;
+    id->g_main_data_top = 0;
+
+    return(PDMP3_OK);
+  }
+  return(PDMP3_ERR);
+}
+
+int main(int ac, char **av){
+  static const char *filename,*audio_name = "/dev/dsp";
+  static FILE *fp =(FILE *) NULL;
+  unsigned char out[INBUF_SIZE];
+  pdmp3_handle *id;
+  size_t done;
+  int res;
+  id = mp3_new(NULL,NULL);
+  if(id == 0)
+    Error("Cannot open stream API (out of memory)",0);
+  while(*av){
+    filename = *av++;
+    if(!strcmp(filename,"-")) fp=stdin;
+    else fp = fopen(filename,"r");
+    if(fp == (FILE *) NULL)
+      Error("Cannot open file\n",0);
+
+    mp3_open_feed(id);
+    while((res = mp3_read(id,out,INBUF_SIZE,&done)) != PDMP3_ERR){
+      audio_write(id,audio_name,filename,out,done);
+      if(res == PDMP3_OK || res == PDMP3_NEW_FORMAT) {
+      }
+      else if(res == PDMP3_NEED_MORE){
+        unsigned char in[4096];
+
+        res = fread(in,1,4096,fp);
+        if(!res) break;
+
+        res = pdmp3_feed(id,in,res);
+      }
+    }
+    fclose(fp);
+  }
+  pdmp3_delete(id);
 }

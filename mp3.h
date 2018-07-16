@@ -104,9 +104,12 @@ typedef struct
 #include "reorder.c"
 #include "stereo.c"
 #include "antialias.c"
+#include "synthesis.c"
 
 static void dmp_scf(t_mpeg1_side_info *si,t_mpeg1_main_data *md,int gr,int ch);
 static void dmp_huff(t_mpeg1_main_data *md,int gr,int ch);
 static void dmp_samples(t_mpeg1_main_data *md,int gr,int ch,int type);
 static int Decode_L3(pdmp3_handle *id);
-int pdmp3_read(pdmp3_handle *id,unsigned char *outmemory,size_t outsize,size_t *done);
+int mp3_read(pdmp3_handle *id,unsigned char *outmemory,size_t outsize,size_t *done);
+pdmp3_handle* mp3_new(const char *decoder,int *error);
+int mp3_open_feed(pdmp3_handle *id);
